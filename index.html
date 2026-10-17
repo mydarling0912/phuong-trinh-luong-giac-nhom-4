@@ -22,6 +22,9 @@
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" id="MathJax-script" async></script>
 
   <style>
+    body {
+      user-select: none;
+    }
     .touch-none-select {
       touch-action: none;
       -webkit-user-select: none;
@@ -325,7 +328,7 @@
       { label: "-\\frac{\\pi}{2}", token: "-\\frac{\\pi}{2}" }
     ];
 
-    /* 2. QUẢN LÝ TRẠNG THÁI */
+    /* 2. QUẢN LÝ TRẠNG THÁI VÀ LOCALSTORAGE */
     let state = {
       groupInfo: { name: "", className: "", members: "" },
       currentPage: 1,
@@ -347,7 +350,7 @@
     }
 
     function initOrRestoreState() {
-      const saved = localStorage.getItem("MATH11_G4_FULL_STATE");
+      const saved = localStorage.getItem("MATH11_G4_UNIFIED_STATE");
       if (saved) {
         try {
           const parsed = JSON.parse(saved);
@@ -367,7 +370,7 @@
     }
 
     function saveState() {
-      localStorage.setItem("MATH11_G4_FULL_STATE", JSON.stringify({
+      localStorage.setItem("MATH11_G4_UNIFIED_STATE", JSON.stringify({
         groupInfo: state.groupInfo,
         currentPage: state.currentPage,
         p1Mappings: state.p1Mappings,
@@ -714,7 +717,7 @@
       initOrRestoreState();
       initMathKeyboard();
 
-      // Khôi phục thông tin nhóm nếu có
+      // Tự động vào thẳng bài làm nếu đã lưu thông tin nhóm
       if (state.groupInfo && state.groupInfo.name) {
         document.getElementById("screen-welcome").classList.add("hidden");
         document.getElementById("input-group-name").value = state.groupInfo.name;
@@ -724,7 +727,7 @@
         document.getElementById("badge-class").textContent = state.groupInfo.className || "";
       }
 
-      // Xử lý Form bắt đầu
+      // Bắt sự kiện Form bắt đầu
       document.getElementById("group-form").addEventListener("submit", (e) => {
         e.preventDefault();
         state.groupInfo.name = document.getElementById("input-group-name").value.trim();
@@ -761,7 +764,7 @@
         else renderPage2();
       });
 
-      // Mở modal xác nhận nộp
+      // Mở modal xác nhận nộp bài
       document.getElementById("btn-submit-work").addEventListener("click", () => {
         const p1Count = Object.keys(state.p1Mappings).length;
         const p2Count = Object.keys(state.p2Answers).filter(k => state.p2Answers[k].length > 0).length;
@@ -778,7 +781,7 @@
         document.getElementById("modal-confirm").classList.add("hidden");
       });
 
-      // Xác nhận nộp bài (Hỗ trợ Apps Script Server & Chế độ Offline Mock)
+      // Xác nhận gửi bài
       document.getElementById("btn-confirm-submit").addEventListener("click", () => {
         const confirmBtn = document.getElementById("btn-confirm-submit");
         confirmBtn.disabled = true;
@@ -859,7 +862,7 @@
         document.getElementById("label-group-info").textContent = `${state.groupInfo.name} - ${state.groupInfo.className}`;
         document.getElementById("label-members-info").textContent = state.groupInfo.members || "Không ghi danh";
         document.getElementById("screen-success").classList.remove("hidden");
-        localStorage.removeItem("MATH11_G4_FULL_STATE");
+        localStorage.removeItem("MATH11_G4_UNIFIED_STATE");
       }
 
       document.getElementById("btn-review-back").addEventListener("click", () => {
